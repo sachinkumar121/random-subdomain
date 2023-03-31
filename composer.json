@@ -1,0 +1,20 @@
+{
+    "name": "sachinkumar121/random-subdomain",
+    "type": "library",
+    "description": "Generate random subdomain and accept nouns and adjectives.",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "RandomSubdomain\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sachin Kumar",
+            "email": "skarora7894@gmail.com"
+        }
+    ]
+}
