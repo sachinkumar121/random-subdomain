@@ -4,10 +4,13 @@ namespace RandomSubdomain;
 class RandomSubdomain {
     private $domain = null;
     private $path;
+    private $noun = [];
+    private $adjective = [];
 
     public function __construct($domain = null, $path = __DIR__) {
         $this->domain = $domain;
         $this->path = $path;
+
         if ($this->domain) {
             $this->createDir();
         }
@@ -15,7 +18,6 @@ class RandomSubdomain {
 
     private function createDir() {
         $this->path = $this->path.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.$this->domain;
-        
         if(!file_exists($this->path)) {
             mkdir($this->path, 0755, true);
         }
@@ -29,45 +31,100 @@ class RandomSubdomain {
         return $this->domain;
     }
 
-    public function setNouns($csv) {
-        $file = $this->getPath().DIRECTORY_SEPARATOR.'nouns.txt';
-        file_put_contents($file, $csv);
+    public function deleteDomain() {
+        return $this->domainDir($this->path);
     }
 
-    public function setAdjectives($csv) {
-        $file = $this->getPath().DIRECTORY_SEPARATOR.'adjectives.txt';
-        file_put_contents($file, $csv);
+    private function domainDir($dir){
+        if (substr($dir, strlen($dir)-1, 1) != '/')
+        $dir .= '/';
+
+        if($handle = opendir($dir)){
+            while ($obj = readdir($handle)){
+                if ($obj != '.' && $obj != '..'){
+                    if (is_dir($dir.$obj)){
+                        if (!$this->domainDir($dir.$obj))
+                            return false;
+                    }elseif (is_file($dir.$obj)){
+                        if (!unlink($dir.$obj))
+                            return false;
+                    }
+                }
+            }
+            closedir($handle);
+            if (!@rmdir($dir))
+                return false;
+            return true;
+        }
+        return false;
     }
 
-    public function getNouns() {
-        $file = $this->getPath().DIRECTORY_SEPARATOR.'nouns.txt';
-        return file_get_contents($file);
+    public function setNouns(array $list) {
+        $this->noun = $this->path.DIRECTORY_SEPARATOR.'nouns.txt';
+        file_put_contents($this->noun, implode("\n", $list));
     }
 
-    public function getAdjectives() {
-        $file = $this->getPath().DIRECTORY_SEPARATOR.'adjectives.txt';
-        return file_get_contents($file);
+    public function setAdjectives(array $list) {
+        $this->adjective = $this->path.DIRECTORY_SEPARATOR.'adjectives.txt';
+        file_put_contents($this->adjective, implode("\n", $list));
     }
 
-    public function getRandomSiteUrl() {
-        $nouns = $this->getNouns();
-        $adjective = $this->getAdjectives();
-        $domain = $this->getDomain();
+    public function getNouns($type = 'string', $forceCheck = false) {
+        $file = $this->path.DIRECTORY_SEPARATOR.'nouns.txt';
+        if(!file_exists($file)){
+            $file = __DIR__.'/data/nouns.txt';
+            $content = file_get_contents($file);
+            if($forceCheck === true){
+                return $type == 'array' ? [] : '';
+            }
+        }else{
+            $content = file_get_contents($file);
+            if(trim($content) == ''){
+                if($forceCheck === true){
+                    return $type == 'array' ? [] : '';
+                }
+                $path = __DIR__.'/data/nouns.txt';
+                $content = file_get_contents($path);
+            }
+        }
+        return $type == 'array' ? explode(PHP_EOL,$content) : $content;
+    }
 
-        $nounsLines = explode(',', $nouns);
-        $adjectiveLines = explode(',', $adjective);
+    public function getAdjectives($type = 'string', $forceCheck=false) {
+        $file = $this->path.DIRECTORY_SEPARATOR.'adjectives.txt';
+        if(!file_exists($file)){
+            $file = __DIR__.'/data/adjectives.txt';
+            $content = file_get_contents($file);
+            if($forceCheck === true){
+                return $type == 'array' ? [] : '';
+            }
+        }else{
+            $content = file_get_contents($file);
+            if(trim($content) == ''){
+                if($forceCheck === true){
+                    return $type == 'array' ? [] : '';
+                }
+                $path = __DIR__.'/data/adjectives.txt';
+                $content = file_get_contents($path);
+            }
+        }
+        return $type == 'array' ? explode(PHP_EOL,$content) : $content;
+    }
 
-        $name = $nounsLines[$this->getRandomInt(0, count($nounsLines))]
-                .'-'.
-                $adjectiveLines[$this->getRandomInt(0, count($adjectiveLines))]
-                .'-'.
-                bin2hex(random_bytes(2)) . ".$domain";
-        
+    public function getUrl() {
+        $nounsLines = $this->getNouns('array');
+        $adjectiveLines = $this->getAdjectives('array');
+
+        $name = sprintf("%s-%s-%s",
+            strtolower($nounsLines[$this->getRandomInt(0, count($nounsLines))]),
+            strtolower($adjectiveLines[$this->getRandomInt(0, count($adjectiveLines))]),
+            bin2hex(random_bytes(3))
+        );
+        $name .= trim($this->domain) ? '.'.$this->domain : '';
         return $name;
     }
 
-    private function getRandomInt($min, $max)
-    {
+    private function getRandomInt($min, $max){
         return floor(mt_rand() / mt_getrandmax() * ($max - $min)) + $min;
     }
 }
