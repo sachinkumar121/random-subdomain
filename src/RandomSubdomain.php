@@ -136,7 +136,10 @@ class RandomSubdomain {
             strtolower($adjectiveLines[$this->getRandomInt(0, count($adjectiveLines))]),
             bin2hex(random_bytes(3))
         );
-        $name .= trim($this->domain) ? '.'.$this->domain : '';
+        
+        if($this->checkDomainExists()){
+            $name .= trim($this->domain) ? '.'.$this->domain : '';
+        }
         return $name;
     }
 
