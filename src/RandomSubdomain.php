@@ -23,6 +23,10 @@ class RandomSubdomain {
         }
     }
 
+    private function setPath($path) {
+        $this->path = $path;
+    }
+
     private function getPath() {
         return $this->path;
     }
