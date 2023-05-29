@@ -35,6 +35,14 @@ class RandomSubdomain {
         return $this->domain;
     }
 
+    public function checkDomainExists(){
+        $path = $this->path.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.$this->domain;
+        if(file_exists($path)) {
+           return true;
+        }
+        return false;
+    }
+
     public function deleteDomain() {
         return $this->domainDir($this->path);
     }
