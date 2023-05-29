@@ -33,6 +33,7 @@ class RandomSubdomain {
 
     public function setDomain($domain) {
         $this->domain =  $domain;
+        $this->path = $this->path.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.$this->domain;
     }
 
     public function getDomain() {
@@ -40,7 +41,6 @@ class RandomSubdomain {
     }
 
     public function checkDomainExists(){
-        $this->path = $this->path.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.$this->domain;
         if(file_exists($this->path)) {
            return true;
         }
@@ -127,7 +127,7 @@ class RandomSubdomain {
         return $type == 'array' ? explode(PHP_EOL,$content) : $content;
     }
 
-    public function getUrl() {
+    public function generateName(){
         $nounsLines = $this->getNouns('array');
         $adjectiveLines = $this->getAdjectives('array');
 
@@ -136,11 +136,19 @@ class RandomSubdomain {
             strtolower($adjectiveLines[$this->getRandomInt(0, count($adjectiveLines))]),
             bin2hex(random_bytes(3))
         );
-        
+        return $name;
+    }
+    public function getUrl() {
+        $name = $this->generateName();
         if($this->checkDomainExists()){
             $name .= trim($this->domain) ? '.'.$this->domain : '';
         }
         return $name;
+    }
+
+    public function getSuffixDomain() {
+        $suffixDomain = $this->generateName();
+        return $suffixDomain;
     }
 
     private function getRandomInt($min, $max){
