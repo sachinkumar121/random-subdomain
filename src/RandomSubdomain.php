@@ -28,7 +28,10 @@ class RandomSubdomain {
     }
 
     public function setDomain($domain) {
-        return $this->domain =  $domain;
+        if($domain){
+            $this->domain =  $domain;
+            $this->path = $this->path.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.$this->domain;
+        }
     }
 
     public function getDomain() {
@@ -36,8 +39,7 @@ class RandomSubdomain {
     }
 
     public function checkDomainExists(){
-        $path = $this->path.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.$this->domain;
-        if(file_exists($path)) {
+        if(file_exists($this->path)) {
            return true;
         }
         return false;
