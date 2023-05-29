@@ -27,7 +27,11 @@ class RandomSubdomain {
         return $this->path;
     }
 
-    private function getDomain() {
+    public function setDomain($domain) {
+        return $this->domain =  $domain;
+    }
+
+    public function getDomain() {
         return $this->domain;
     }
 
